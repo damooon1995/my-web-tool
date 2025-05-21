@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "fonteditor-core": "^2.4.1",
+    "wasm-potrace": "^0.4.1"
+  }
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专薯Font - 文字识别与字体生成工具</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">
+                <h1>专薯Font</h1>
+                <p class="tagline">文字识别与字体生成工具</p>
+            </div>
+        </div>
+    </header>
+    
+    <main class="site-content">
+        <div class="container">
+            <section class="upload-section" id="upload">
+                <h2 class="section-title">上传图片</h2>
+                <div class="card">
+                    <div class="upload-layout">
+                        <!-- 左侧上传区域 -->
+                        <div class="upload-controls">
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-content">
+                                    <img src="upload-icon.svg" alt="上传图标" class="upload-icon">
+                                    <p>点击或拖拽图片到此处上传</p>
+                                    <p class="upload-hint">仅支持 JPG 格式</p>
+                                    <input type="file" id="fileInput" multiple accept=".jpg,.jpeg" style="display: none;">
+                                    <button class="btn primary" onclick="document.getElementById('fileInput').click()">选择图片</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 右侧预览区域 -->
+                        <div class="preview-container">
+                            <div class="preview-area" id="previewArea">
+                                <!-- 预览图片将在这里显示 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="ocr-section" id="ocr">
+                <h2 class="section-title">字体识别</h2>
+                <div class="ocr-controls card" id="ocrControls" style="display: none;">
+                    <button class="btn primary" id="startOcrBtn">开始识别</button>
+                    <div class="progress-wrapper" id="ocrProgressWrapper" style="display: none;">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="ocrProgressBar"></div>
+                        </div>
+                        <span class="progress-text" id="ocrProgressText">0%</span>
+                    </div>
+                    <div class="ocr-settings" style="display: none;">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="autoSplit" checked>
+                            <span class="checkmark"></span>
+                            自动分割字符
+                        </label>
+                    </div>
+                </div>
+                <div class="ocr-results card" id="ocrResults">
+                    <h3 class="card-title">字体识别结果</h3>
+                    <p class="ocr-hint">可手动修正识别结果或重新识别</p>
+                    <div class="ocr-preview-area" id="ocrPreviewArea">
+                        <!-- OCR识别结果将在这里显示 -->
+                    </div>
+                </div>
+            </section>
+            
+            <section class="font-section" id="preview">
+                <h2 class="section-title">字体预览</h2>
+                <div class="card">
+                    <div class="font-preview-section" id="fontPreviewSection" style="display: none;">
+                        <div class="font-preview-layout">
+                            <!-- 左侧控制区域 -->
+                            <div class="font-controls-panel">
+                                <div class="control-group">
+                                    <label for="fontNameInput">字体命名:</label>
+                                    <input type="text" id="fontNameInput" value="CustomFont" placeholder="输入字体名称">
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="previewText">文本预览:</label>
+                                    <input type="text" id="previewText" placeholder="输入文字预览字体效果..." value="AaBbCc123!@#">
+                                </div>
+                                
+                                <div class="control-group">
+                                    <div class="slider-control">
+                                        <label for="fontSizeSlider">字体大小: <span id="fontSizeValue">72px</span></label>
+                                        <input type="range" id="fontSizeSlider" min="72" max="200" value="72" step="1">
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <div class="color-control">
+                                        <label>字体颜色:</label>
+                                        <div class="color-options">
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" id="fontColorPicker" value="#000000">
+                                                <label for="fontColorPicker" class="color-picker-label">选择颜色</label>
+                                            </div>
+                                            <input type="text" id="customColorInput" placeholder="#RRGGBB" maxlength="7" value="#000000">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <div class="color-control">
+                                        <label>背景颜色:</label>
+                                        <div class="color-options">
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" id="bgColorPicker" value="#FFFFFF">
+                                                <label for="bgColorPicker" class="color-picker-label">选择颜色</label>
+                                            </div>
+                                            <input type="text" id="customBgColorInput" placeholder="#RRGGBB" maxlength="7" value="#FFFFFF">
+                                        </div>
+                                        <div class="auto-bg-toggle">
+                                            <label class="checkbox-container">
+                                                <input type="checkbox" id="autoInvertBg" checked>
+                                                <span class="checkmark"></span>
+                                                自适应背景色
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group download-button-container">
+                                    <button class="btn primary" id="downloadTTFBtn">下载TTF字体</button>
+                                    <div class="progress-wrapper" id="fontProgressWrapper" style="display: none;">
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar" id="fontProgressBar"></div>
+                                        </div>
+                                        <span class="progress-text" id="fontProgressText">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 右侧预览区域 -->
+                            <div class="font-preview-display">
+                                <div id="previewDisplay" class="preview-text">AaBbCc123!@#</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <script src="script.js"></script>
+</body>
+</html> 
